@@ -17,11 +17,11 @@ install:
 	install -m 644 *.ui $(DESTDIR)$(DATADIR)
 	install -m 644 *.glade $(DESTDIR)$(DATADIR)
 	install -m 644 radio-browser.plugin $(DESTDIR)$(SUBDIR)
-	glib-compile-schemas $(DESTDIR)$(SCHEMADIR)
 
 uninstall:
 	rm $(DESTDIR)$(SUBDIR)radio-browser.gschema.xml
 	rm -r $(DESTDIR)$(SUBDIR)
 	rm -r $(DESTDIR)$(DATADIR)
+
+compilescheme:
 	glib-compile-schemas $(DESTDIR)$(SCHEMADIR)
-	
