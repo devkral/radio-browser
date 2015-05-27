@@ -20,7 +20,7 @@ from gi.repository import GObject
 from gi.repository import Peas
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
-from gi.repository import GConf
+from gi.repository import GConf #PORT
 #need package gir1.2-gconf-2.0 to be installed
 from gi.repository import PeasGtk
 from gi.repository import Gio

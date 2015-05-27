@@ -32,7 +32,7 @@ import hashlib
 import urllib.request, urllib.parse, urllib.error
 import webbrowser
 import queue
-import pickle
+import json
 import datetime
 import math
 import urllib.request, urllib.error, urllib.parse
@@ -343,12 +343,12 @@ class RadioBrowserSource(RB.StreamingSource):
             self.play_uri(station)
 
         def button_add_click(widget, name, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
                 data[station.server_name] = station
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
+            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             self.refill_favourites()
 
@@ -399,12 +399,12 @@ class RadioBrowserSource(RB.StreamingSource):
             self.refill_favourites()
 
         def button_delete_click(widget, name, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name in data:
                 del data[station.server_name]
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
+            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             self.refill_favourites()
 
@@ -491,7 +491,7 @@ class RadioBrowserSource(RB.StreamingSource):
         decorated_box.add(scrolled_box)
         self.start_box.pack2(decorated_box)
 
-        data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+        data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
         if data is None:
             data = {}
         sortedkeys = sorted(data.keys())
@@ -672,7 +672,7 @@ class RadioBrowserSource(RB.StreamingSource):
             self.play_uri(station)
 
         def button_bookmark_handler(widget, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
@@ -693,7 +693,7 @@ class RadioBrowserSource(RB.StreamingSource):
                         break
                 del data[station.server_name]
                 widget.set_label(_("Bookmark"))
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
+            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
         def button_record_handler(widget, station):
             self.record_uri(station)
@@ -741,7 +741,7 @@ class RadioBrowserSource(RB.StreamingSource):
                 button.connect("clicked", button_record_handler, obj)
                 button_box.pack_start(button, False, False, 0)
 
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
@@ -1367,7 +1367,7 @@ class RadioBrowserSource(RB.StreamingSource):
 
         # add bookmarks
         self.bookmarks_iter = self.tree_store.append(None, (_("Bookmarks"), None))
-        data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+        data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
         if data is None:
             data = {}
         for name, station in list(data.items()):
@@ -1427,8 +1427,7 @@ class RadioBrowserSource(RB.StreamingSource):
 
         try:
             f = open(filename, "rb")
-            p = pickle.Unpickler(f)
-            data = p.load()
+            data = json.load(f)
             f.close()
             return data
         except:
@@ -1437,9 +1436,8 @@ class RadioBrowserSource(RB.StreamingSource):
 
     def save_to_file(self, filename, obj):
         print("save_to_file")
-        f = open(filename, "wb")
-        p = pickle.Pickler(f)
-        p.dump(obj)
+        f = open(filename, "w")
+        json.dump(obj)
         f.close()
 
 
