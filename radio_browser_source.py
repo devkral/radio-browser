@@ -1437,7 +1437,7 @@ class RadioBrowserSource(RB.StreamingSource):
     def save_to_file(self, filename, obj):
         print("save_to_file")
         f = open(filename, "w")
-        json.dump(obj)
+        json.dump(obj,f)
         f.close()
 
 
