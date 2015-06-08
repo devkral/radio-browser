@@ -236,7 +236,7 @@ class RadioBrowserSource(RB.StreamingSource):
 
             # enable images on buttons
             settings = Gtk.Settings.get_default()
-            settings.set_property("gtk_button_images", True)
+            #settings.set_property("gtk_button_images", True)
             #Gtk.Settings.gtk_button_images(True)
 
             self.event_page_switch(_, _, 0)
@@ -346,8 +346,9 @@ class RadioBrowserSource(RB.StreamingSource):
             data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
+            print(type(data).__name__)
             if station.server_name not in data:
-                data[station.server_name] = station
+                data[station.server_name] = station.__dict__
             self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             self.refill_favourites()
@@ -1436,6 +1437,7 @@ class RadioBrowserSource(RB.StreamingSource):
 
     def save_to_file(self, filename, obj):
         print("save_to_file")
+        print(type(obj).__name__)
         f = open(filename, "w")
         json.dump(obj,f)
         f.close()

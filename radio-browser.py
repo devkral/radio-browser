@@ -146,8 +146,13 @@ class RadioBrowserPlugin(GObject.GObject, Peas.Activatable):
 
     def __init__(self):
         super(RadioBrowserPlugin, self).__init__()
-        self.gconf = GConf.Client.get_default()
-
+        #self.gconf = GConf.Client.get_default()
+        self.settings = Gio.Settings("org.gnome.rhythmbox.plugins.radio-browser")
+        
+        self.settings.bind("download-trys",self,"download_trys")
+        self.settings.bind("recently-played-purge-days",self,"recently_played_purge_days")
+        self.settings.bind("outputpath",self,"outputpath")
+        
     def action_update_list(self):
         try:
             self.shell.get_property("selected-source").update_button_clicked()

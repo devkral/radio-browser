@@ -11,7 +11,7 @@ clean:
 install:
 	install -d $(DESTDIR)$(SUBDIR)
 	install -d $(DESTDIR)$(DATADIR)
-	install -m 644 radio-browser.gschema.xml $(DESTDIR)$(SUBDIR)
+	install -m 644 radio-browser.gschema.xml $(DESTDIR)$(SCHEMADIR)
 	install -m 644 *.py $(DESTDIR)$(SUBDIR)
 	install -m 644 *.png $(DESTDIR)$(DATADIR)
 	install -m 644 *.ui $(DESTDIR)$(DATADIR)
@@ -19,7 +19,7 @@ install:
 	install -m 644 radio-browser.plugin $(DESTDIR)$(SUBDIR)
 
 uninstall:
-	rm $(DESTDIR)$(SUBDIR)radio-browser.gschema.xml
+	rm $(DESTDIR)$(SCHEMADIR)radio-browser.gschema.xml
 	rm -r $(DESTDIR)$(SUBDIR)
 	rm -r $(DESTDIR)$(DATADIR)
 
