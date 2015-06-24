@@ -15,7 +15,6 @@ install:
 	install -m 644 *.py $(DESTDIR)$(SUBDIR)
 	install -m 644 *.png $(DESTDIR)$(DATADIR)
 	install -m 644 *.ui $(DESTDIR)$(DATADIR)
-	install -m 644 *.glade $(DESTDIR)$(DATADIR)
 	install -m 644 radio-browser.plugin $(DESTDIR)$(SUBDIR)
 
 uninstall:

@@ -37,7 +37,7 @@ gconf_keys = {'download_trys': '/apps/rhythmbox/plugins/radio-browser/download_t
               'recently_played_purge_days': '/apps/rhythmbox/plugins/radio-browser/recently_played_purge_days'
 }
 
-DIALOG_FILE = 'radio-browser.glade'
+DIALOG_FILE = 'radio-browser.ui'
 DIALOG = 'config_dialog'
 
 

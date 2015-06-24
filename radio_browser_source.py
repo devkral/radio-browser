@@ -190,7 +190,7 @@ class RadioBrowserSource(RB.StreamingSource):
             self.icon_view_container = ui.get_object('icon_view_container')
             self.view = ui.get_object('view')
             filterbox = ui.get_object('filterbox')
-            self.start_box = ui.get_object('start_box')
+            #self.start_box = ui.get_object('start_box') #remove start_box
 
             # prepare search tab
             print("prepare search tab")
@@ -375,13 +375,13 @@ class RadioBrowserSource(RB.StreamingSource):
         if thread:
             Gdk.threads_leave()
 
-    def refill_favourites(self):
+    """def refill_favourites(self):
         print("refill favourites")
 
         (hasfound, width, height) = Gtk.icon_size_lookup(Gtk.IconSize.BUTTON)
         # remove all old information in infobox
-        for widget in self.start_box.get_children():
-            self.start_box.remove(widget)
+        #for widget in self.start_box.get_children():
+        #    self.start_box.remove(widget)
 
         def button_click(widget, name, station):
             self.play_uri(station)
@@ -537,18 +537,15 @@ class RadioBrowserSource(RB.StreamingSource):
                 print("could not set image for station:" + str(station.server_name))
 
         if (len(sortedkeys) > 0):
-            decorated_box.show_all()
+            decorated_box.show_all()"""
 
     """ handler for page switches in the main notebook """
 
     def event_page_switch(self, notebook, page, page_num):
         print("event_page_switch")
         if page_num == 0:
-            # update favourites each time user selects it
-            self.refill_favourites()
-        if page_num == 1:
             pass
-        if page_num == 2:
+        if page_num == 1:
             if not self.main_list_filled:
                 # fill the list only the first time, the user selects the main tab
                 self.main_list_filled = True
