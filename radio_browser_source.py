@@ -51,11 +51,6 @@ from board_handler import BoardHandler
 from radiotime_handler import FeedRadioTime
 from radiotime_handler import FeedRadioTimeLocal
 
-#TODO: should not be defined here, but I don't know where to get it from. HELP: much apreciated
-#RB.MetaDataField
-RB_METADATA_FIELD_TITLE = 0
-RB_METADATA_FIELD_GENRE = 4
-RB_METADATA_FIELD_BITRATE = 20
 BOARD_ROOT = "http://www.radio-browser.info/"
 RECENTLY_USED_FILENAME = "recently2.bin"
 BOOKMARKS_FILENAME = "bookmarks_2.bin"
@@ -869,7 +864,7 @@ class RadioBrowserSource(RB.StreamingSource):
 
     def info_available(self, player, uri, field, value):
         print("info_available")
-        if field == RB_METADATA_FIELD_TITLE:
+        if field == RB.MetaDataField.TITLE:
             self.title = value
             self.set_streaming_title(self.title)
             #transmit_thread = threading.Thread(target = self.transmit_title,args = (value,))
@@ -877,14 +872,14 @@ class RadioBrowserSource(RB.StreamingSource):
             #transmit_thread.start()
             #print "setting title to:"+value
 
-        elif field == RB_METADATA_FIELD_GENRE:
+        elif field == RB.MetaDataField.GENRE:
             self.genre = value
             ## causes warning: RhythmDB-WARNING **: trying to sync properties of non-editable file
             #self.shell.props.db.set(self.entry, rhythmdb.PROP_GENRE, value)
             #self.shell.props.db.commit()
             #print "setting genre to:"+value
 
-        elif field == RB_METADATA_FIELD_BITRATE:
+        elif field == RB.MetaDataField.BITRATE:
             ## causes warning: RhythmDB-WARNING **: trying to sync properties of non-editable file
             #self.shell.props.db.set(self.entry, rhythmdb.PROP_BITRATE, value/1000)
             #self.shell.props.db.commit()
