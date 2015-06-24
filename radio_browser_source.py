@@ -204,6 +204,8 @@ class RadioBrowserSource(RB.StreamingSource):
 
             searchbutton = ui.get_object('searchbutton')
             searchbutton.connect("clicked", searchButtonClick)
+            
+            self.search_entry.connect("activate", searchButtonClick)
 
             search_input_box = ui.get_object('search_input_box')
             self.result_box = ui.get_object('result_box')
@@ -581,11 +583,11 @@ class RadioBrowserSource(RB.StreamingSource):
         # get selected item
         print("treeview_cursor_changed_handler")
         selection = treeview.get_selection()
-        model, iter = selection.get_selected()
+        model, tree_iter = selection.get_selected()
 
         # if some item is selected
-        if not iter == None:
-            obj = model.get_value(iter, 1)
+        if not tree_iter == None:
+            obj = model.get_value(tree_iter, 1)
             self.update_info_box(obj, info_box)
 
     def update_info_box(self, obj, info_box):
@@ -671,7 +673,7 @@ class RadioBrowserSource(RB.StreamingSource):
             self.play_uri(station)
 
         def button_bookmark_handler(widget, station):
-            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME)) # TODO: relace by rhythmbox intern stuff
             if data is None:
                 data = {}
             if station.server_name not in data:
@@ -679,16 +681,16 @@ class RadioBrowserSource(RB.StreamingSource):
                 data[station.server_name] = station
                 widget.set_label(_("Unbookmark"))
             else:
-                iter = self.tree_store.iter_children(self.bookmarks_iter)
+                tree_iter = self.tree_store.iter_children(self.bookmarks_iter)
                 while True:
-                    title = self.tree_store.get_value(iter, 0)
+                    title = self.tree_store.get_value(tree_iter, 0)
 
                     if title == station.server_name:
-                        self.tree_store.remove(iter)
+                        self.tree_store.remove(tree_iter)
                         break
 
-                    iter = self.tree_store.iter_next(iter)
-                    if iter == None:
+                    tree_iter = self.tree_store.iter_next(tree_iter)
+                    if tree_iter == None:
                         break
                 del data[station.server_name]
                 widget.set_label(_("Bookmark"))
@@ -807,8 +809,8 @@ class RadioBrowserSource(RB.StreamingSource):
 
     """ data display function for tree view """
 
-    def model_data_func(self, column, cell, model, iter, infostr):
-        obj = model.get_value(iter, 1)
+    def model_data_func(self, column, cell, model, iter2, infostr):
+        obj = model.get_value(iter2, 1)
         self.clef_icon = self.get_icon_pixbuf(rb.find_plugin_file(self.plugin, "note.png"))
 
         if infostr == "image":
