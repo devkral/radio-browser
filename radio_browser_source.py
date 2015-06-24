@@ -378,170 +378,6 @@ class RadioBrowserSource(RB.StreamingSource):
         if thread:
             Gdk.threads_leave()
 
-    """def refill_favourites(self):
-        print("refill favourites")
-
-        (hasfound, width, height) = Gtk.icon_size_lookup(Gtk.IconSize.BUTTON)
-        # remove all old information in infobox
-        #for widget in self.start_box.get_children():
-        #    self.start_box.remove(widget)
-
-        def button_click(widget, name, station):
-            self.play_uri(station)
-
-        def button_record_click(widget, name, station):
-            self.record_uri(station)
-
-        def button_add_click(widget, name, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
-            if data is None:
-                data = {}
-            if station.server_name not in data:
-                data[station.server_name] = station
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
-
-            self.refill_favourites()
-
-        def button_delete_click(widget, name, station):
-            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
-            if data is None:
-                data = {}
-            if station.server_name in data:
-                del data[station.server_name]
-            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
-
-            self.refill_favourites()
-
-        left_box = Gtk.VBox()
-        left_box.show()
-
-        # add click statistics list
-        self.statistics_box = Gtk.VBox()
-        scrolled_box = Gtk.ScrolledWindow()
-        scrolled_box.add_with_viewport(self.statistics_box)
-        scrolled_box.set_property("hscrollbar-policy", Gtk.PolicyType.AUTOMATIC)
-        decorated_box = Gtk.Frame()
-        decorated_box.set_label("Click statistics (Last 30 days)")
-        decorated_box.add(scrolled_box)
-        self.statistics_box_parent = decorated_box
-        left_box.pack_start(decorated_box, True, True, 0)  #dm
-
-        self.refill_statistics()
-
-        # add recently played list
-        recently_box = Gtk.VBox()
-        scrolled_box = Gtk.ScrolledWindow()
-        scrolled_box.add_with_viewport(recently_box)
-        scrolled_box.set_property("hscrollbar-policy", Gtk.PolicyType.AUTOMATIC)
-        decorated_box = Gtk.Frame()
-        decorated_box.set_label("Recently played")
-        decorated_box.add(scrolled_box)
-        left_box.pack_start(decorated_box, True, True, 0)  #dm
-
-        self.start_box.pack1(left_box)
-
-        data = self.load_from_file(os.path.join(self.cache_dir, RECENTLY_USED_FILENAME))
-        if data is None:
-            data = {}
-        dataNew = {}
-        sortedkeys = sorted(data.keys())
-        for name in sortedkeys:
-            station = data[name]
-            if datetime.datetime.now() - station.PlayTime <= datetime.timedelta(
-                    days=float(self.plugin.recently_played_purge_days)):
-                if len(name) > 53:
-                    short_value = name[0:50] + "..."
-                else:
-                    short_value = name
-                button = Gtk.Button(short_value)
-                button.connect("clicked", button_click, name, station)
-
-                button_add = Gtk.Button()
-                img = Gtk.Image()
-                img.set_from_stock(Gtk.STOCK_GO_FORWARD, Gtk.IconSize.BUTTON)
-                button_add.set_image(img)
-                button_add.connect("clicked", button_add_click, name, station)
-                line = Gtk.HBox()
-                line.pack_start(button, True, True, 0)  #dm
-                line.pack_start(button_add, False, False, 0)  #expand
-
-                recently_box.pack_start(line, False, False, 0)  #expand
-                dataNew[name] = station
-
-                try:
-                    if station.icon_src != "":
-                        hash_src = hashlib.md5(station.icon_src.encode('utf-8')).hexdigest()
-                        filepath = os.path.join(self.icon_cache_dir, hash_src)
-                        if os.path.exists(filepath):
-                            buffer = Pixbuf.new_from_file_at_size(filepath, width, height)
-                            img = Gtk.Image()
-                            img.set_from_pixbuf(buffer)
-                            img.show()
-                            button.set_image(img)
-                except:
-                    print("could not set image for station:" + str(station.server_name))
-
-        if len(sortedkeys) > 0:
-            decorated_box.show_all()
-        self.save_to_file(os.path.join(self.cache_dir, RECENTLY_USED_FILENAME), dataNew)
-
-        # add bookmarks
-        favourites_box = Gtk.VBox()
-        scrolled_box = Gtk.ScrolledWindow()
-        scrolled_box.add_with_viewport(favourites_box)
-        scrolled_box.set_property("hscrollbar-policy", Gtk.PolicyType.AUTOMATIC)
-        decorated_box = Gtk.Frame()
-        decorated_box.set_label("Favourites")
-        decorated_box.add(scrolled_box)
-        self.start_box.pack2(decorated_box)
-
-        data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
-        if data is None:
-            data = {}
-        sortedkeys = sorted(data.keys())
-        for name in sortedkeys:
-            line = Gtk.HBox()
-            station = data[name]
-            if len(name) > 53:
-                short_value = name[0:50] + "..."
-            else:
-                short_value = name
-
-            button = Gtk.Button(short_value)
-            button.connect("clicked", button_click, name, station)
-            button_delete = Gtk.Button()
-            img = Gtk.Image()
-            img.set_from_stock(Gtk.STOCK_DELETE, Gtk.IconSize.BUTTON)
-            button_delete.set_image(img)
-            button_delete.connect("clicked", button_delete_click, name, station)
-
-            button_record = Gtk.Button()
-            img = Gtk.Image()
-            img.set_from_stock(Gtk.STOCK_MEDIA_RECORD, Gtk.IconSize.BUTTON)
-            button_record.set_image(img)
-            button_record.connect("clicked", button_record_click, name, station)
-
-            line.pack_start(button, True, True, 0)  #dm
-            line.pack_start(button_record, False, False, 0)  #dm expand
-            line.pack_start(button_delete, False, False, 0)  #dm expand
-            favourites_box.pack_start(line, False, False, 0)  #dm expand
-
-            try:
-                if station.icon_src != "":
-                    hash_src = hashlib.md5(station.icon_src.encode('utf-8')).hexdigest()
-                    filepath = os.path.join(self.icon_cache_dir, hash_src)
-                    if os.path.exists(filepath):
-                        buffer = Pixbuf.new_from_file_at_size(filepath, width, height)
-                        img = Gtk.Image()
-                        img.set_from_pixbuf(buffer)
-                        img.show()
-                        button.set_image(img)
-            except:
-                print("could not set image for station:" + str(station.server_name))
-
-        if (len(sortedkeys) > 0):
-            decorated_box.show_all()"""
-
     """ handler for page switches in the main notebook """
 
     def event_page_switch(self, notebook, page, page_num):
@@ -1443,7 +1279,27 @@ class RadioBrowserSource(RB.StreamingSource):
         p = pickle.Pickler(f)
         p.dump(obj)
         f.close()
+    
+    def load_bookmarks(self, filename):
+        #print("load_from_file")
+        if not os.path.isfile(filename):
+            return None
 
+        try:
+            f = open(filename, "rb")
+            data = json.load(f)
+            f.close()
+            return data
+        except:
+            print("load file did not work:" + filename)
+            return None
+
+    def save_bookmarks(self, filename, obj):
+        #print("save_to_file")
+        #print(type(obj).__name__)
+        f = open(filename, "w")
+        json.dump(obj,f)
+        f.close()
 
 GObject.type_register(RadioBrowserSource)
 
