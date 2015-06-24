@@ -32,7 +32,8 @@ import hashlib
 import urllib.request, urllib.parse, urllib.error
 import webbrowser
 import queue
-import json
+#import json
+import pickle
 import datetime
 import math
 import urllib.request, urllib.error, urllib.parse
@@ -1419,13 +1420,14 @@ class RadioBrowserSource(RB.StreamingSource):
         self.list_download_thread.start()
 
     def load_from_file(self, filename):
-        print("load_from_file")
+        #print("load_from_file")
         if not os.path.isfile(filename):
             return None
 
         try:
             f = open(filename, "rb")
-            data = json.load(f)
+            p = pickle.Unpickler(f)
+            data = p.load()
             f.close()
             return data
         except:
@@ -1433,10 +1435,11 @@ class RadioBrowserSource(RB.StreamingSource):
             return None
 
     def save_to_file(self, filename, obj):
-        print("save_to_file")
-        print(type(obj).__name__)
-        f = open(filename, "w")
-        json.dump(obj,f)
+        #print("save_to_file")
+        #print(type(obj).__name__)
+        f = open(filename, "wb")
+        p = pickle.Pickler(f)
+        p.dump(obj)
         f.close()
 
 

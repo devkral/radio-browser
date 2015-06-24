@@ -44,19 +44,21 @@ DIALOG = 'config_dialog'
 class ConfigDialog(GObject.Object, PeasGtk.Configurable):
     __type_name__ = 'RadioBrowserConfigDialog'
     object = GObject.property(type=GObject.Object)
-    #download_trys=None
-    #recently_played_purge_days=None
-    #outputpath=None
     
+    download_trys = GObject.Property(type=int)
+    recently_played_purge_days = GObject.Property(type=int)
+    outputpath = GObject.Property(type=str)
+
     def __init__(self):
         GObject.Object.__init__(self)
         
         #now init settings
         self.settings = Gio.Settings("org.gnome.rhythmbox.plugins.radio-browser")
         #self.gconf = GConf.Client.get_default()
-        self.settings.bind("download-trys",self,"download_trys")
-        self.settings.bind("recently-played-purge-days",self,"recently_played_purge_days")
-        self.settings.bind("outputpath",self,"outputpath")
+        
+        self.settings.bind("download-trys",self,"download_trys",Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("recently-played-purge-days",self,"recently_played_purge_days",Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("outputpath",self,"outputpath",Gio.SettingsBindFlags.DEFAULT)
         
         if self.outputpath == "":
             _outputpath = os.path.expanduser("~")
@@ -143,15 +145,21 @@ class RadioBrowserEntryType(RB.RhythmDBEntryType):
 class RadioBrowserPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'RadioBrowserPlugin'
     object = GObject.Property(type=GObject.GObject)
+    
+    download_trys = GObject.Property(type=int)
+    recently_played_purge_days = GObject.Property(type=int)
+    outputpath = GObject.Property(type=str)
+    
 
     def __init__(self):
         super(RadioBrowserPlugin, self).__init__()
         #self.gconf = GConf.Client.get_default()
         self.settings = Gio.Settings("org.gnome.rhythmbox.plugins.radio-browser")
         
-        self.settings.bind("download-trys",self,"download_trys")
-        self.settings.bind("recently-played-purge-days",self,"recently_played_purge_days")
-        self.settings.bind("outputpath",self,"outputpath")
+        print("ffffffffffffffffffdsssswa22e333o")
+        self.settings.bind("download-trys",self,"download_trys",Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("recently-played-purge-days",self,"recently_played_purge_days",Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("outputpath",self,"outputpath",Gio.SettingsBindFlags.DEFAULT)
         
     def action_update_list(self):
         try:
