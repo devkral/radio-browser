@@ -543,15 +543,15 @@ class RadioBrowserSource(RB.StreamingSource):
     def event_page_switch(self, notebook, page, page_num):
         print("event_page_switch")
         if page_num == 0:
-            # update favourites each time user selects it
-            self.refill_favourites()
-        if page_num == 1:
-            pass
-        if page_num == 2:
             if not self.main_list_filled:
                 # fill the list only the first time, the user selects the main tab
                 self.main_list_filled = True
                 self.refill_list()
+        if page_num == 1:
+            pass
+        if page_num == 2:
+            # update favourites each time user selects it
+            self.refill_favourites()
 
     """ listener on double click in search view """
 
