@@ -56,7 +56,7 @@ RB_METADATA_FIELD_GENRE = 4
 RB_METADATA_FIELD_BITRATE = 20
 BOARD_ROOT = "http://www.radio-browser.info/"
 RECENTLY_USED_FILENAME = "recently2.bin"
-BOOKMARKS_FILENAME = "bookmarks.bin"
+BOOKMARKS_FILENAME = "bookmarks_2.bin"
 
 GLib.threads_init()
 
@@ -200,7 +200,7 @@ class RadioBrowserSource(RB.StreamingSource):
 
             def searchButtonClick(widget):
                 self.doSearch(self.search_entry.get_text())
-
+            self.search_entry.connect("activate", searchButtonClick)
             searchbutton = ui.get_object('searchbutton')
             searchbutton.connect("clicked", searchButtonClick)
 
@@ -343,12 +343,12 @@ class RadioBrowserSource(RB.StreamingSource):
             self.play_uri(station)
 
         def button_add_click(widget, name, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
                 data[station.server_name] = station
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
+            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             self.refill_favourites()
 
@@ -389,22 +389,22 @@ class RadioBrowserSource(RB.StreamingSource):
             self.record_uri(station)
 
         def button_add_click(widget, name, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
                 data[station.server_name] = station
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
+            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             self.refill_favourites()
 
         def button_delete_click(widget, name, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name in data:
                 del data[station.server_name]
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
+            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             self.refill_favourites()
 
@@ -693,7 +693,7 @@ class RadioBrowserSource(RB.StreamingSource):
                         break
                 del data[station.server_name]
                 widget.set_label(_("Bookmark"))
-            self.save_to_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME), data)
+            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
         def button_record_handler(widget, station):
             self.record_uri(station)
@@ -1120,7 +1120,6 @@ class RadioBrowserSource(RB.StreamingSource):
             transmit_thread.start()
 
     def download_feed(self, feed):
-        print("download_feed")
         tryno = 0
         self.updating = True
         while True:
@@ -1154,7 +1153,6 @@ class RadioBrowserSource(RB.StreamingSource):
         self.refill_list()
 
     def do_impl_delete_thyself(self):
-        print("do_impl_delete_thyself")
         if self.hasActivated:
             # kill all running records
             for uri in list(self.recording_streams.keys()):
@@ -1162,7 +1160,6 @@ class RadioBrowserSource(RB.StreamingSource):
             self.shell = False
 
     def engines(self):
-        print("engines")
         yield FeedIcecast(self.cache_dir,self.update_download_status)
         yield FeedBoard(self.cache_dir, self.update_download_status)
         #yield FeedShoutcast(self.cache_dir,self.update_download_status)
@@ -1170,12 +1167,10 @@ class RadioBrowserSource(RB.StreamingSource):
         #yield FeedRadioTimeLocal(self.cache_dir,self.update_download_status)
 
     def get_stock_icon(self, name):
-        #print "get_stock_icon"
         theme = Gtk.icon_theme_get_default()
         return theme.load_icon(name, 48, 0)
 
     def load_icon_file(self, filepath, value_not_found):
-        #print "load_icon_file"
         icon = value_not_found
         try:
             icon = Pixbuf.new_from_file_at_size(filepath, 72, 72)
@@ -1245,8 +1240,6 @@ class RadioBrowserSource(RB.StreamingSource):
 
         stations_count = 0
 
-        print ("###################")
-        print (len(entries))
         for obj in entries:
             if isinstance(obj, Feed):
                 sub_feed = obj
@@ -1331,8 +1324,6 @@ class RadioBrowserSource(RB.StreamingSource):
         return stations_count
 
     def refill_list_worker(self):
-        print("refill list worker")
-
         Gdk.threads_enter()  #dm
         self.station_actions = {}
         tree = self.tree_view.set_model(None)
@@ -1396,29 +1387,24 @@ class RadioBrowserSource(RB.StreamingSource):
         self.icon_view_store.set_sort_column_id(0, Gtk.SortType.ASCENDING)
 
         # connect model to view
-        print("connect filter to view")
         self.filtered_icon_view_store = self.icon_view_store.filter_new()
         self.filtered_icon_view_store.set_visible_func(self.list_store_visible_func)
         Gdk.threads_enter()  #dm
         self.tree_view.set_model(self.sorted_list_store)
         self.icon_view.set_model(self.filtered_icon_view_store)
-        print("filter set model to tree and icon views")
 
         #Gdk.threads_enter()
         self.updating = False
         self.notify_status_changed()
         Gdk.threads_leave()
 
-        print("refill list worker")
 
     def refill_list(self):
-        print("refill list")
         self.list_download_thread = threading.Thread(target=self.refill_list_worker)
         self.list_download_thread.setDaemon(True)
         self.list_download_thread.start()
 
     def load_from_file(self, filename):
-        print("load_from_file")
         if not os.path.isfile(filename):
             return None
 
@@ -1433,7 +1419,6 @@ class RadioBrowserSource(RB.StreamingSource):
             return None
 
     def save_to_file(self, filename, obj):
-        print("save_to_file")
         f = open(filename, "wb")
         p = pickle.Pickler(f)
         p.dump(obj)
