@@ -33,6 +33,7 @@ import urllib.request, urllib.parse, urllib.error
 import webbrowser
 import queue
 import pickle
+import json
 import datetime
 import math
 import urllib.request, urllib.error, urllib.parse
@@ -51,6 +52,7 @@ from radiotime_handler import FeedRadioTime
 from radiotime_handler import FeedRadioTimeLocal
 
 #TODO: should not be defined here, but I don't know where to get it from. HELP: much apreciated
+#RB.MetaDataField
 RB_METADATA_FIELD_TITLE = 0
 RB_METADATA_FIELD_GENRE = 4
 RB_METADATA_FIELD_BITRATE = 20
@@ -226,17 +228,19 @@ class RadioBrowserSource(RB.StreamingSource):
             # start icon downloader thread
             # use queue for communication with thread
             # enqueued addresses will get downloaded
-            self.icon_download_queue = queue.Queue()
-            self.icon_download_thread = threading.Thread(target=self.icon_download_worker)
-            self.icon_download_thread.setDaemon(True)
-            self.icon_download_thread.start()
+            
+            #deactivate icon downloading
+            #self.icon_download_queue = queue.Queue()
+            #self.icon_download_thread = threading.Thread(target=self.icon_download_worker)
+            #self.icon_download_thread.setDaemon(True)
+            #self.icon_download_thread.start()
 
             # first time filling of the model
             self.main_list_filled = False
 
             # enable images on buttons
-            settings = Gtk.Settings.get_default()
-            settings.set_property("gtk_button_images", True)
+            #settings = Gtk.Settings.get_default()
+            #settings.set_property("gtk_button_images", True)
             #Gtk.Settings.gtk_button_images(True)
 
             self.event_page_switch(_, _, 0)
@@ -343,12 +347,12 @@ class RadioBrowserSource(RB.StreamingSource):
             self.play_uri(station)
 
         def button_add_click(widget, name, station):
-            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
+            data = self.load_bookmarks(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
                 data[station.server_name] = station
-            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
+            self.save_bookmarks(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             #self.refill_favourites()
 
@@ -389,22 +393,22 @@ class RadioBrowserSource(RB.StreamingSource):
             self.record_uri(station)
 
         def button_add_click(widget, name, station):
-            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
+            data = self.load_bookmarks(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
                 data[station.server_name] = station
-            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
+            self.save_bookmarks(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             #self.refill_favourites()
 
         def button_delete_click(widget, name, station):
-            data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
+            data = self.load_bookmarks(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name in data:
                 del data[station.server_name]
-            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
+            self.save_bookmarks(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
             #self.refill_favourites()
 
@@ -674,7 +678,7 @@ class RadioBrowserSource(RB.StreamingSource):
             self.play_uri(station)
 
         def button_bookmark_handler(widget, station):
-            data = self.load_from_file(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
+            data = self.load_bookmarks(os.path.join(self.cache_dir, BOOKMARKS_FILENAME))
             if data is None:
                 data = {}
             if station.server_name not in data:
@@ -694,7 +698,7 @@ class RadioBrowserSource(RB.StreamingSource):
                         break
                 del data[station.server_name]
                 widget.set_label(_("Bookmark"))
-            self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
+            self.save_bookmarks(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
         def button_record_handler(widget, station):
             self.record_uri(station)
@@ -1423,6 +1427,28 @@ class RadioBrowserSource(RB.StreamingSource):
         f = open(filename, "wb")
         p = pickle.Pickler(f)
         p.dump(obj)
+        f.close()
+
+    def load_bookmarks(self, filename):
+        self.load_from_file(filename)
+        return #TODO: fix
+        if not os.path.isfile(filename):
+            return None
+
+        try:
+            f = open(filename, "r")
+            data = json.load(f)
+            f.close()
+            return data
+        except:
+            print("load file did not work:" + filename)
+            return None
+
+    def save_bookmarks(self, filename, obj):
+        self.save_to_file(filename,obj) #TODO: fix
+        return
+        f = open(filename, "w")
+        json.dump(obj, f)
         f.close()
 
 
