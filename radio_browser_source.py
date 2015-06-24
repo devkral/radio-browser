@@ -350,7 +350,7 @@ class RadioBrowserSource(RB.StreamingSource):
                 data[station.server_name] = station
             self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
-            self.refill_favourites()
+            #self.refill_favourites()
 
         if thread:
             Gdk.threads_enter()
@@ -396,7 +396,7 @@ class RadioBrowserSource(RB.StreamingSource):
                 data[station.server_name] = station
             self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
-            self.refill_favourites()
+            #self.refill_favourites()
 
         def button_delete_click(widget, name, station):
             data = self.load_from_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME))
@@ -406,7 +406,7 @@ class RadioBrowserSource(RB.StreamingSource):
                 del data[station.server_name]
             self.save_to_file(os.path.join(RB.user_data_dir(), BOOKMARKS_FILENAME), data)
 
-            self.refill_favourites()
+            #self.refill_favourites()
 
         left_box = Gtk.VBox()
         left_box.show()
@@ -551,7 +551,8 @@ class RadioBrowserSource(RB.StreamingSource):
             pass
         if page_num == 2:
             # update favourites each time user selects it
-            self.refill_favourites()
+            #self.refill_favourites()
+            pass
 
     """ listener on double click in search view """
 
@@ -845,13 +846,13 @@ class RadioBrowserSource(RB.StreamingSource):
 
     """ transmits station information to board """
 
-    def transmit_station(self, station):
-        print("transmit_station")
-        params = urllib.parse.urlencode(
-            {'action': 'clicked', 'name': station.server_name, 'url': station.getRealURL(), 'source': station.type})
-        f = urllib.request.urlopen(BOARD_ROOT + "?%s" % params)
-        f.read()
-        print("Transmit station '" + str(station.server_name) + "' OK")
+    #def transmit_station(self, station):
+    #    print("transmit_station")
+    #    params = urllib.parse.urlencode(
+    #        {'action': 'clicked', 'name': station.server_name, 'url': station.getRealURL(), 'source': station.type})
+    #    f = urllib.request.urlopen(BOARD_ROOT + "?%s" % params)
+    #    f.read()
+    #    print("Transmit station '" + str(station.server_name) + "' OK")
 
     """ transmits title information to board """
     """def transmit_title(self,title):
@@ -1006,14 +1007,14 @@ class RadioBrowserSource(RB.StreamingSource):
 
             Gdk.threads_enter()
             self.load_status = _("downloading station information") + " '" + station.server_name + "', " + _(
-                "Try") + ":" + str(tryno) + "/" + str(math.floor(float(self.plugin.download_trys)))
+                "Try") + ":" + str(tryno) + "/" + str(self.plugin.download_trys)
             self.load_total_size = 0
             self.notify_status_changed()
             Gdk.threads_leave()
 
             if station.getRealURL() is not None:
                 break
-            if tryno >= float(self.plugin.download_trys):
+            if tryno >= self.plugin.download_trys:
                 Gdk.threads_enter()
                 self.load_status = ""
                 self.updating = False
@@ -1093,14 +1094,14 @@ class RadioBrowserSource(RB.StreamingSource):
         Gdk.threads_leave()
 
         # transmit station click to station board (statistic) """
-        transmit_thread = threading.Thread(target=self.transmit_station, args=(station,))
+        #transmit_thread = threading.Thread(target=self.transmit_station, args=(station,))
         transmit_thread.setDaemon(True)
         transmit_thread.start()
 
     """ handler for double clicks in tree view """
 
     def row_activated_handler(self, treeview, path, column):
-        print("row_activated_handler (treeview double click)")
+        #print("row_activated_handler (treeview double click)")
         model = treeview.get_model()
         myiter = model.get_iter(path)
 
