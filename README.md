@@ -2,9 +2,8 @@ Radio-Browser
 =============
 
 GTK3+ port from original source https://github.com/segler-alex/rhythmbox-radio-browser/issues
-for Rhythmbox 2.96 - 2.99.1
 
-NOTE: For Rhythmbox 3.0 and above use the RB3 branch
+for Rhythmbox 3.0 and later
 
 ##GTK3 Author
 
@@ -23,7 +22,7 @@ Installation
 ------------
 
 <pre>
-git clone https://github.com/fossfreedom/radio-browser
+git clone https://github.com/fossfreedom/radio-browser -b rb3
 cd radio-browser
 ./install.sh
 </pre>
@@ -31,7 +30,7 @@ cd radio-browser
 For a system wide install then:
 
 <pre>
-git clone https://github.com/fossfreedom/radio-browser
+git clone https://github.com/fossfreedom/radio-browser -b rb3
 cd radio-browser
 sudo make install
 </pre>
@@ -43,15 +42,10 @@ Non-Debian based distros
 
 You will need to install the equivalent packages for your distro: `streamripper gir1.2-gconf-2.0`
 
-Debian & Ubuntu 12.04 notes:
+Debian & Ubuntu 14.04 notes:
 -------------------
 
 packages required to be installed:
 
     sudo apt-get install streamripper gir1.2-gconf-2.0
 
-This is packaged in my PPA:
-
-    sudo add-apt-repository ppa:fossfreedom/rhythmbox-plugins
-    sudo apt-get update
-    sudo apt-get install rhythmbox-plugin-radio-browser

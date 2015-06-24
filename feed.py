@@ -16,32 +16,35 @@
 #    along with Radio-Browser-Plugin.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import urllib2
-import httplib
-from urlparse import urlparse
+import urllib.request, urllib.error, urllib.parse
+import http.client
+from urllib.parse import urlparse
 import datetime
 import locale
 import xml.sax.handler
 
 from radio_station import RadioStation
 
+
 class FeedAction:
-    def __init__(self,feed,name,func):
+    def __init__(self, feed, name, func):
         self.feed = feed
         self.name = name
         self.func = func
 
-    def call(self,source):
+    def call(self, source):
         self.func(source)
 
+
 class FeedStationAction:
-    def __init__(self,feed,name,func):
+    def __init__(self, feed, name, func):
         self.feed = feed
         self.name = name
         self.func = func
 
-    def call(self,source,station):
-        self.func(source,station)
+    def call(self, source, station):
+        self.func(source, station)
+
 
 class Feed:
     def __init__(self):
@@ -60,66 +63,67 @@ class Feed:
     def getHomepage(self):
         return ""
 
-    def setAutoDownload(self,autodownload):
+    def setAutoDownload(self, autodownload):
         self.AutoDownload = autodownload
 
-    def setUpdateChecking(self,updatechecking):
+    def setUpdateChecking(self, updatechecking):
         self.UpdateChecking = updatechecking
 
-    def copy_callback(self,current,total):
-        self.status_change_handler(self.uri,current,total)
+    def copy_callback(self, current, total):
+        self.status_change_handler(self.uri, current, total)
 
     def download(self):
-        print "downloading "+self.uri
+        print("downloading " + self.uri)
         try:
             os.remove(self.filename)
         except:
             pass
 
         try:
-            remotefile = urllib2.urlopen(self.uri)
+            remotefile = urllib.request.urlopen(self.uri)
             chunksize = 100
             data = ""
             current = 0
 
             while True:
                 chunk = remotefile.read(chunksize)
+                chunk = chunk.decode('latin-1')
                 current += chunksize
-                self.copy_callback(current,self.FileSize)
+                self.copy_callback(current, self.FileSize)
                 if chunk == "":
                     break
                 if chunk == None:
                     break
                 data += chunk
 
-            localfile = open(self.filename,"w")
-            localfile.write(data)
+            localfile = open(self.filename, 'at', encoding='utf8')
+            localfile.write(data + '\n')
             localfile.close()
-        except Exception, e:
-            print "download failed exception"
-            print e
+        except Exception as e:
+            print("download failed exception")
+            print(e)
             return False
         return True
 
     def getRemoteFileInfo(self):
         try:
             urlparts = urlparse(self.uri)
-            conn = httplib.HTTPConnection(urlparts.netloc)
+            conn = http.client.HTTPConnection(urlparts.netloc)
             conn.request("HEAD", urlparts.path)
             res = conn.getresponse()
-            for key,value in res.getheaders():
+            for key, value in res.getheaders():
                 if key == "last-modified":
-                    print key+":"+value
+                    print(key + ":" + value)
                     oldlocale = locale.setlocale(locale.LC_ALL)
-                    locale.setlocale(locale.LC_ALL,"C")
-                    self.remote_mod = datetime.datetime.strptime(value,'%a, %d %b %Y %H:%M:%S %Z')
-                    locale.setlocale(locale.LC_ALL,oldlocale)
+                    locale.setlocale(locale.LC_ALL, "C")
+                    self.remote_mod = datetime.datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %Z')
+                    locale.setlocale(locale.LC_ALL, oldlocale)
                 if key == "content-length":
-                    print key+":"+value
+                    print(key + ":" + value)
                     self.FileSize = int(value)
-        except Exception, e:
-            print "could not check remote file for modification time:"+self.uri
-            print e
+        except Exception as e:
+            print("could not check remote file for modification time:" + self.uri)
+            print(e)
             return
 
     # only download if necessary
@@ -130,13 +134,13 @@ class Feed:
         try:
             local_mod = datetime.datetime.fromtimestamp(os.path.getmtime(self.filename))
         except:
-            print "could not load local file:"+self.filename
+            print("could not load local file:" + self.filename)
             download = True
 
         self.getRemoteFileInfo()
-        
+
         if self.remote_mod > local_mod:
-            print "Local file older than 1 day: remote("+str(self.remote_mod)+") local("+str(local_mod)+")"
+            print("Local file older than 1 day: remote(" + str(self.remote_mod) + ") local(" + str(local_mod) + ")")
             # change date is different -> download
             download = True
 
@@ -144,11 +148,11 @@ class Feed:
             self.download()
 
     def load(self):
-        print "loading "+self.filename
+        print("loading " + self.filename)
         try:
-            xml.sax.parse(self.filename,self.handler)
+            xml.sax.parse(self.filename, self.handler)
         except:
-            print "parse failed of "+self.filename
+            print("parse failed of " + self.filename)
 
     def genres(self):
         if not os.path.isfile(self.filename) and not self.AutoDownload:
@@ -158,7 +162,7 @@ class Feed:
             if self.UpdateChecking:
                 self.update()
             if not os.path.isfile(self.filename):
-                self.download() #was just download()
+                self.download()  #was just download()
             self.load()
             self.loaded = True
 
@@ -179,7 +183,7 @@ class Feed:
             if self.UpdateChecking:
                 self.update()
             if not os.path.isfile(self.filename):
-                self.download() #was just download()
+                self.download()  #was just download()
             self.load()
             self.loaded = True
 
@@ -206,15 +210,15 @@ class Feed:
     #   print "not implemented in this feed"
     #   return None
 
-    def downloadFile(self,url):
+    def downloadFile(self, url):
         try:
-            remotefile = urllib2.urlopen(url)
+            remotefile = urllib.request.urlopen(url)
             chunksize = 100
             data = ""
             current = 0
 
             while True:
-                chunk = remotefile.read(chunksize)
+                chunk = remotefile.read(chunksize).decode('utf-8')
                 current += chunksize
                 if chunk == "":
                     break
@@ -224,8 +228,8 @@ class Feed:
 
             remotefile.close()
             return data
-        except Exception, e:
-            print "download failed exception"
-            print e
+        except Exception as e:
+            print("download failed exception")
+            print(e)
 
         return None
